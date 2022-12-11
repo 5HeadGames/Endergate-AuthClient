@@ -8,6 +8,7 @@
     "@magic-ext/connect": "0.1.6",
     "@magic-ext/oauth": "2.1.1",
     "@magic-sdk/types": "7.1.1",
+    "axios": "^1.2.1",
     "magic-sdk": "8.1.1",
     "react": "18.0.0",
     "react-dom": "18.0.0",

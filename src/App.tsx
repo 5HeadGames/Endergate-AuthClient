@@ -1,54 +1,59 @@
-import { useState } from "react";
-import "./styles.css";
+import axios from "axios";
+import Web3 from "web3";
+import { useState, useEffect } from "react";
 import { Magic } from "magic-sdk";
 import { ConnectExtension } from "@magic-ext/connect";
-import Web3 from "web3";
+import "./styles.css";
 
 const magic = new Magic("pk_live_F1CF688B682EE2CE", {
   network: "goerli",
   locale: "en_US",
-  extensions: [new ConnectExtension()]
+  extensions: [new ConnectExtension()],
 } as any);
 
 const web3 = new Web3(magic.rpcProvider);
 
 export default function App() {
   const [account, setAccount] = useState(null);
+  const [isRejected, setIsRejected] = useState(false);
 
-  const sendTransaction = async () => {
-    const publicAddress = (await web3.eth.getAccounts())[0];
-    const txnParams = {
-      from: publicAddress,
-      to: publicAddress,
-      value: web3.utils.toWei("0.01", "ether"),
-      gasPrice: web3.utils.toWei("30", "gwei")
+  useEffect(() => {
+    const onPageLoad = () => {
+      login();
     };
-    web3.eth
-      .sendTransaction(txnParams as any)
-      .on("transactionHash", (hash) => {
-        console.log("the txn hash that was returned to the sdk:", hash);
-      })
-      .then((receipt) => {
-        console.log("the txn receipt that was returned to the sdk:", receipt);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+
+    // Check if the page has already loaded
+    if (document.readyState === "complete") {
+      onPageLoad();
+    } else {
+      window.addEventListener("load", onPageLoad);
+      // Remove the event listener when component unmounts
+      return () => window.removeEventListener("load", onPageLoad);
+    }
+  }, []);
 
   const login = async () => {
-    // await magic.auth.loginWithMagicLink({
-    //   email: "olegpeschinskycyber@gmail.com"
-    // });
-    console.log("Hi");
     web3.eth
       .getAccounts()
-      .then((accounts) => {
-
-        console.log(accounts);
-        setAccount(accounts?.[0]);
+      .then(async (accounts) => {
+        const params = new URLSearchParams(window.location.search);
+        let platform = params.get("platform");
+        let version = params.get("version");
+        let uuid = params.get("uuid");
+        let wallet = accounts?.[0];
+        axios
+          .post("http://localhost:3002/auth", {
+            platform,
+            version,
+            uuid,
+            wallet,
+          })
+          .then((response) => {
+            setAccount(accounts?.[0]);
+          });
       })
       .catch((error) => {
+        setIsRejected(true);
         console.log(error);
       });
   };
@@ -58,6 +63,7 @@ export default function App() {
     const signedMessage = await web3.eth.personal
       .sign("My Message", publicAddress, "")
       .catch((e) => console.log(e));
+
     console.log(signedMessage);
   };
 
@@ -76,29 +82,27 @@ export default function App() {
 
   return (
     <div className="app">
-      <h2>Magic Connect</h2>
       {!account && (
-        <button onClick={login} className="button-row">
-          Sign In
-        </button>
+        <>
+          <h2 className="status-text">
+            {!isRejected ? "Authenticating..." : "Authenticate Failed"}
+          </h2>
+          <h2 className="hint-text">
+            {!isRejected ? "Please wait..." : "Rejected"}{" "}
+          </h2>
+        </>
       )}
 
       {account && (
         <>
-          <button onClick={showWallet} className="button-row">
-            Show Wallet
-          </button>
-          <button onClick={sendTransaction} className="button-row">
-            Send Transaction
-          </button>
-          <button onClick={signMessage} className="button-row">
-            Sign Message
-          </button>
-          <button onClick={disconnect} className="button-row">
-            Disconnect
-          </button>
+          <h2 className="status-text">Authenticated</h2>
+          <h2 className="hint-text">
+            Now you can close this tab and return to the game.
+          </h2>
         </>
       )}
+
+      <img src="/logo_s.png" alt="logo" className="logo"></img>
     </div>
   );
 }
