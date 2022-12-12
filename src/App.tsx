@@ -18,6 +18,8 @@ export default function App() {
   const [isRejected, setIsRejected] = useState(false);
 
   useEffect(() => {
+    // disconnect();
+
     const onPageLoad = () => {
       login();
     };
@@ -41,16 +43,26 @@ export default function App() {
         let version = params.get("version");
         let uuid = params.get("uuid");
         let wallet = accounts?.[0];
-        axios
-          .post("http://localhost:3002/auth", {
-            platform,
-            version,
-            uuid,
-            wallet,
+        let signMsg = "Endersgate Magic link Authentication: " + uuid;
+
+        web3.eth.personal
+          .sign(signMsg, wallet, "")
+          .then((sign) => {
+            console.log(sign);
+            axios
+              .post("https://endersgate-auth-server.herokuapp.com/auth", {
+                platform,
+                version,
+                uuid,
+                wallet,
+                sign,
+                signMsg,
+              })
+              .then((res) => {
+                setAccount(accounts?.[0]);
+              });
           })
-          .then((response) => {
-            setAccount(accounts?.[0]);
-          });
+          .catch((e) => console.log(e));
       })
       .catch((error) => {
         setIsRejected(true);
