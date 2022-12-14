@@ -16,6 +16,7 @@ const web3 = new Web3(magic.rpcProvider);
 export default function App() {
   const [account, setAccount] = useState(null);
   const [isRejected, setIsRejected] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     // disconnect();
@@ -60,6 +61,8 @@ export default function App() {
               })
               .then((res) => {
                 setAccount(accounts?.[0]);
+                setIsFinished(true);
+                disconnect();
               });
           })
           .catch((e) => console.log(e));
@@ -68,21 +71,6 @@ export default function App() {
         setIsRejected(true);
         console.log(error);
       });
-  };
-
-  const signMessage = async () => {
-    const publicAddress = (await web3.eth.getAccounts())[0];
-    const signedMessage = await web3.eth.personal
-      .sign("My Message", publicAddress, "")
-      .catch((e) => console.log(e));
-
-    console.log(signedMessage);
-  };
-
-  const showWallet = () => {
-    magic.connect.showWallet().catch((e) => {
-      console.log(e);
-    });
   };
 
   const disconnect = async () => {
@@ -94,7 +82,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {!account && (
+      {!account && !isFinished && (
         <>
           <h2 className="status-text">
             {!isRejected ? "Authenticating..." : "Authenticate Failed"}
@@ -105,7 +93,7 @@ export default function App() {
         </>
       )}
 
-      {account && (
+      {isFinished && (
         <>
           <h2 className="status-text">Authenticated</h2>
           <h2 className="hint-text">
