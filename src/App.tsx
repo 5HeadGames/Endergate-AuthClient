@@ -5,8 +5,11 @@ import { Magic } from "magic-sdk";
 import { ConnectExtension } from "@magic-ext/connect";
 import "./styles.css";
 
-const magic = new Magic("pk_live_F1CF688B682EE2CE", {
-  network: "goerli",
+const magic = new Magic("pk_live_F2F3382B69E1E50D", {
+  network: {
+    rpcUrl: "https://polygon-rpc.com/", // or https://matic-mumbai.chainstacklabs.com for testnet
+    chainId: 137, // or 80001 for polygon testnet
+  },
   locale: "en_US",
   extensions: [new ConnectExtension()],
 } as any);
