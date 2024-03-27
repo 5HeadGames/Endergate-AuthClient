@@ -5,8 +5,8 @@ import { Magic } from "magic-sdk";
 import { ConnectExtension } from "@magic-ext/connect";
 import "./styles.css";
 
-const magic = new Magic("pk_live_F1CF688B682EE2CE", {
-  network: "goerli",
+const magic = new Magic("pk_live_92FCE3D8E93CA379", {
+  network: "matic",
   locale: "en_US",
   extensions: [new ConnectExtension()],
 } as any);
