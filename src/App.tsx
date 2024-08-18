@@ -1,11 +1,11 @@
 import { ConnectExtension } from "@magic-ext/connect";
 import axios from "axios";
 import { Magic } from "magic-sdk";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Web3 from "web3";
 
-import "./styles.css";
 import { AUTH_URI } from "./config/uri";
+import "./styles.css";
 
 const magic = new Magic("pk_live_F2F3382B69E1E50D", {
   network: {
@@ -16,10 +16,14 @@ const magic = new Magic("pk_live_F2F3382B69E1E50D", {
   extensions: [new ConnectExtension()],
 } as any);
 
-const web3 = new Web3(magic.rpcProvider);
+let web3: Web3;
+
+magic.wallet.getProvider().then((provider) => {
+  web3 = new Web3(provider);
+});
 
 export default function App() {
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState<string | null>(null);
   const [isRejected, setIsRejected] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
@@ -41,6 +45,8 @@ export default function App() {
   }, []);
 
   const login = async () => {
+    await magic.wallet.connectWithUI();
+
     web3.eth
       .getAccounts()
       .then(async (accounts) => {
