@@ -1,12 +1,17 @@
-import axios from "axios";
-import Web3 from "web3";
-import { useState, useEffect } from "react";
-import { Magic } from "magic-sdk";
 import { ConnectExtension } from "@magic-ext/connect";
-import "./styles.css";
+import axios from "axios";
+import { Magic } from "magic-sdk";
+import React, { useEffect, useState } from "react";
+import Web3 from "web3";
 
-const magic = new Magic("pk_live_F1CF688B682EE2CE", {
-  network: "goerli",
+import "./styles.css";
+import { AUTH_URI } from "./config/uri";
+
+const magic = new Magic("pk_live_F2F3382B69E1E50D", {
+  network: {
+    rpcUrl: "https://polygon-rpc.com/",
+    chainId: 137,
+  },
   locale: "en_US",
   extensions: [new ConnectExtension()],
 } as any);
@@ -51,7 +56,7 @@ export default function App() {
           .then((sign) => {
             console.log(sign);
             axios
-              .post("https://endersgate-auth-server.herokuapp.com/auth", {
+              .post(AUTH_URI, {
                 platform,
                 version,
                 uuid,
@@ -74,10 +79,9 @@ export default function App() {
   };
 
   const disconnect = async () => {
-    await magic.connect.disconnect().catch((e) => {
-      console.log(e);
+    magic.wallet.disconnect().then(() => {
+      setAccount(null);
     });
-    setAccount(null);
   };
 
   return (
