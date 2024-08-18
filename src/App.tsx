@@ -19,7 +19,7 @@ const magic = new Magic("pk_live_F2F3382B69E1E50D", {
 const web3 = new Web3(magic.rpcProvider);
 
 export default function App() {
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState<string | null>(null);
   const [isRejected, setIsRejected] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
