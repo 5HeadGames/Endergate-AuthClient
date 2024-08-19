@@ -14,11 +14,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-<<<<<<< HEAD
     "jsx": "react-jsx"
-=======
-    "jsx": "react"  // This line specifies React JSX support
->>>>>>> 838101344bf45c68de7fc7d9c26951aeadf81426
   },
   "include": ["src"]
 }
